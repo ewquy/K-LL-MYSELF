@@ -17,10 +17,10 @@ client.on('ready', async () => {
     // Profil Aktivite Durumu (Oynuyor / Dinliyor)
     const activity = new RichPresence(client)
         .setApplicationId('1101928302322303030')
-        .setName('Visual Studio Code')
+        .setName('ecelin olucam')
         .setType('PLAYING')
-        .setDetails('7/24 Seste')
-        .setState('Kod yazıyor...');
+        .setDetails('kafana sıkıcam')
+        .setState('deliricem');
 
     // Özel Durum Yazısı
     const customStatus = new CustomStatus(client)
