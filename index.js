@@ -24,8 +24,8 @@ client.on('ready', async () => {
 
     // Özel Durum Yazısı
     const customStatus = new CustomStatus(client)
-        .setState('7/24 Aktif')
-        .setEmoji('⚡');
+        .setState('/titanlar')
+        .setEmoji('😁');
 
     client.user.setPresence({
         activities: [activity, customStatus],
