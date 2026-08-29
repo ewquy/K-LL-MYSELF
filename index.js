@@ -2,7 +2,7 @@ const { Client, CustomStatus, RichPresence } = require('discord.js-selfbot-v13')
 const { joinVoiceChannel } = require('@discordjs/voice');
 const http = require('http');
 
-// Render'ın uykuya geçmesini engellemek için küçük web sunucusu
+// Render'ın kapanmaması için web sunucusu
 http.createServer((req, res) => res.end('7/24 Aktif')).listen(process.env.PORT || 3000);
 
 const client = new Client({ checkUpdate: false });
@@ -14,24 +14,32 @@ const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 client.on('ready', async () => {
     console.log(`${client.user.tag} bulutta aktif!`);
 
-    // Profil Aktivite Durumu (Oynuyor / Dinliyor)
-    const activity = new RichPresence(client)
+    // --- SPOTIFY DİNLİYOR AYARLARI ---
+    const songName = 'bloodparty';
+    const artistName = 'b4r';
+    const albumName = 'bloodparty';
+
+    const spotifyActivity = new RichPresence(client)
         .setApplicationId('1101928302322303030')
-        .setName('ecelin olucam')
-        .setType('PLAYING')
-        .setDetails('kafana sıkıcam')
-        .setState('deliricem');
+        .setName('Spotify')
+        .setType('LISTENING')
+        .setDetails(songName)
+        .setState(artistName)
+        .setAssetsLargeImage('spotify:ab67616d0000b273610e20601f01633519808a54')
+        .setAssetsLargeText(albumName)
+        .setStartTimestamp(Date.now());
 
-    // Özel Durum Yazısı
+    // --- ÖZEL DURUM YAZISI ---
     const customStatus = new CustomStatus(client)
-        .setState('/titanlar')
-        .setEmoji('😁');
+        .setState('/titanlar');
 
+    // --- HESAP DURUMU (RAHATSIZ ETMEYİN) ---
     client.user.setPresence({
-        activities: [activity, customStatus],
-        status: 'online',
+        activities: [spotifyActivity, customStatus],
+        status: 'dnd', // dnd = Rahatsız Etmeyin (Kırmızı İkon)
     });
 
+    // --- SESE BAĞLANMA ---
     try {
         const guild = await client.guilds.fetch(GUILD_ID);
         const channel = await guild.channels.fetch(VOICE_CHANNEL_ID);
