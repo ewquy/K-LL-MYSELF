@@ -15,9 +15,9 @@ client.on('ready', async () => {
     console.log(`${client.user.tag} bulutta aktif!`);
 
     // --- SPOTIFY DİNLİYOR AYARLARI ---
-    const songName = 'bloodparty';
-    const artistName = 'b4r';
-    const albumName = 'bloodparty';
+    const songName = 'kazakistan'';
+    const artistName = 'irlanda';
+    const albumName = '363';
 
     const spotifyActivity = new RichPresence(client)
         .setApplicationId('1101928302322303030')
@@ -31,7 +31,7 @@ client.on('ready', async () => {
 
     // --- ÖZEL DURUM YAZISI ---
     const customStatus = new CustomStatus(client)
-        .setState('/titanlar');
+        .setState('/363');
 
     // --- HESAP DURUMU (RAHATSIZ ETMEYİN) ---
     client.user.setPresence({
