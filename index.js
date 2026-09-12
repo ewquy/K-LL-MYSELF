@@ -1,5 +1,9 @@
-const { Client, CustomStatus, RichPresence } = require('discord.js-selfbot-v13');
-const { joinVoiceChannel } = require('@discordjs/voice');
+const { Client } = require('discord.js-selfbot-v13');
+const { joinVoiceChannel, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
+const http = require('http');
+
+// Web sunucusu (UptimeRobot / Kesintisiz Bağlantı İçin)
+http.createServer((req, res) => res.end('7/24 Seste')).listen(process.env.PORT || 3000);
 
 const client = new Client({ checkUpdate: false });
 
@@ -7,44 +11,41 @@ const TOKEN = process.env.TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 const VOICE_CHANNEL_ID = process.env.VOICE_CHANNEL_ID;
 
-async function startBot() {
-    if (client.isReady()) return 'Zaten aktif';
-    
-    await client.login(TOKEN);
-    
-    const activity = new RichPresence(client)
-        .setApplicationId('1101928302322303030')
-        .setName('discord.gg/363')
-        .setType('LISTENING')
-        .setDetails('bloodparty - b4r')
-        .setState('discord.gg/kazakistan')
-        .setStartTimestamp(Date.now());
-
-    const customStatus = new CustomStatus(client).setState('/363');
-
-    client.user.setPresence({
-        activities: [activity, customStatus],
-        status: 'dnd',
-    });
-
+async function connectToVoice() {
     try {
         const guild = await client.guilds.fetch(GUILD_ID);
         const channel = await guild.channels.fetch(VOICE_CHANNEL_ID);
 
-        joinVoiceChannel({
+        const connection = joinVoiceChannel({
             channelId: channel.id,
             guildId: guild.id,
             adapterCreator: guild.voiceAdapterCreator,
             selfDeaf: true,
             selfMute: true,
         });
-        return 'Seste aktif';
-    } catch (e) {
-        return 'Hata: ' + e.message;
+
+        // Bağlantı koparsa otomatik tekrar bağlanma kontrolü
+        connection.on(VoiceConnectionStatus.Disconnected, async () => {
+            try {
+                await Promise.race([
+                    entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+                    entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+                ]);
+            } catch (error) {
+                connection.destroy();
+                connectToVoice();
+            }
+        });
+
+        console.log(`[BAŞARILI] ${channel.name} kanalına girildi.`);
+    } catch (error) {
+        console.error('[HATA] Sese girerken sorun oluştu:', error);
     }
 }
 
-module.exports = async (req, res) => {
-    const status = await startBot();
-    res.status(200).send(status);
-};
+client.on('ready', () => {
+    console.log(`${client.user.tag} olarak oturum açıldı!`);
+    connectToVoice();
+});
+
+client.login(TOKEN);
